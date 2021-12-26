@@ -1,6 +1,122 @@
-//题解太多，以后写在这里面，还可以按顺序进行排列 本周除了这个文件夹的题目还有26 45 46 47 66题
-//以后有时间会逐步把以前的题目挪进来
+//1.两数之和
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> hashtable;
+        for (int i = 0; i < nums.size(); ++i) {
+            auto it = hashtable.find(target - nums[i]);
+            if (it != hashtable.end()) {
+                return {it->second, i};
+            }
+            hashtable[nums[i]] = i;
+        }
+        return {};
+    }
+};
+//2.两数相加
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        int carry=0;
+        ListNode *head=new ListNode(0);
+        ListNode *pre=head;
+        while(l1||l2)
+        {
+            int sum=0;
+            if(l1!=nullptr)
+            {
+                sum+=l1->val;
+                l1=l1->next;
+            }
+            if(l2!=nullptr)
+            {
+                sum+=l2->val;
+                l2=l2->next;
+            }
+            sum+=carry;
+            if(sum>=10)
+            {
+                sum=sum%10;
+                carry=1;
+            }
+            else{
+                carry=0;
+            }
+            ListNode *current=new ListNode(sum);
+            pre->next=current;
+            pre=pre->next;
+        }  
+        if(carry)
+        {
+            pre->next=new ListNode(1);
+        }
+        return head->next;
+    }
+};
+//3.无重复字符的最长子串
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_set<char> char_set;
+        int left=0,right=0,ans=0;
+        for(;left<s.size();++left)
+        {
+            while(right<s.size()&&char_set.count(s[right])==0)
+            {
+                char_set.insert(s[right]);
+                ans=max(ans,right-left+1);
+                ++right;
+            }
+            char_set.erase(s[left]);
+        }
+        return ans;
+    }
+};
 //4.寻找两个正序数组的中位数
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int m,n;
+        int i=0,j=0;
+        double ans=0;
+        m=nums1.size();
+        n=nums2.size();
+        nums1.push_back(9999999);
+        nums2.push_back(9999999); 
+        vector<int>num={};
+        for(int k=0;k<m+n;k++)
+        {
+           
+            if(nums1[i]<nums2[j]){
+                num.push_back (nums1[i]);
+                i++;
+            }
+            else{
+                num.push_back(nums2[j]);
+                j++;
+            }
+        }
+        if((m+n)%2==0){
+         ans = (double)(num[(m+n)/2] + num[(m+n)/2-1]) / 2;
+         return ans;
+        }
+        else{
+            ans= (double)num[(m+n)/2];
+            return ans;
+        } 
+    }
+};
+//符合时间复杂度要求的做法
 class Solution {
 public:
 //新做法，以前合并数组再找中位数的时间复杂度太大
@@ -61,6 +177,86 @@ public:
     }
 
 };
+//9.回文数
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        if(x<0||x%10==0&&x!=0)
+        {return false;}
+        else{
+           int r=0;
+           while(x>r){
+               r=r*10+x%10;
+               x/=10;
+           }
+           return x==r||x==r/10;
+        }
+    }//也能转换成字符串通过reverse反转，继而进行判断
+};
+//11.盛水最多的容器
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int left=0;int right=height.size()-1;
+        int ans=0; 
+        if((right-left)<1) return -1;
+        else{
+        for(;left<right;){
+            ans=max(ans,min(height[left],height[right])*(right-left));
+            if(height[right]<height[left])--right;
+            else ++left;
+            }
+        return ans;
+        }
+       
+    }
+};
+//12.整数转罗马数字
+class Solution {
+public:
+    string intToRoman(int num) {
+    int values[]={1000,900,500,400,100,90,50,40,10,9,5,4,1};
+    string reps[]={"M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"};
+    string ans;
+    for(int i=0;i<13;i++){
+        while(num>=values[i]){
+            num-=values[i];
+            ans+=reps[i];
+        }
+    }
+    return ans;
+    }
+};
+//13.罗马数字转整数
+class Solution {
+private:    
+    unordered_map<char, int> symbolValues = {
+        {'I', 1},
+        {'V', 5},
+        {'X', 10},
+        {'L', 50},
+        {'C', 100},
+        {'D', 500},
+        {'M', 1000},
+    };
+public:
+int romanToInt(string s) {
+    int ans=0;
+    for(int i=0;i<s.length();++i)
+    {
+        int value=symbolValues[s[i]];
+        if(i<s.length()-1&&value<symbolValues[s[i+1]])
+        {
+            ans-=value;
+        }
+        else{
+            ans+=value;
+        }
+    }
+    return ans;
+}
+   
+};
 //14.最长公共前缀
 class Solution {
 public:
@@ -79,6 +275,81 @@ public:
         return strs[0];
 
     }
+};
+//17.电话号码的字母组合
+class Solution {
+    private:
+    const string letterMap[10] = {
+        "", // 0
+        "", // 1
+        "abc", // 2
+        "def", // 3
+        "ghi", // 4
+        "jkl", // 5
+        "mno", // 6
+        "pqrs", // 7
+        "tuv", // 8
+        "wxyz", // 9
+    };
+public:
+    vector<string> result;//存放结果
+    string s;//存放叶子节点的结果
+    void backtracking(const string &digits,int index){
+        if(index==digits.size()){
+            result.push_back(s);
+            return;
+        }
+        int digit=digits[index]-'0';
+        string letters=letterMap[digit];
+        for(int i=0;i<letters.size();++i){
+            s.push_back(letters[i]);
+            backtracking(digits,index+1);
+            s.pop_back();
+        }
+    }
+    vector<string> letterCombinations(string digits) {
+        s.clear();
+        result.clear();
+        if(digits.size()==0){return result;}
+        backtracking(digits,0);
+        return result;
+    }
+};
+//19.删除链表的倒数第N个结点
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    int getlen(ListNode *head){
+        int len=0;
+        while(head!=nullptr)
+        {
+            ++len;
+            head=head->next;
+        }
+        return len;
+    }
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+       int lenth=getlen(head);
+       ListNode *p=new ListNode(0,head);
+       ListNode* cur=p;
+       for(int i=1;i<lenth-n+1;++i)
+       {
+           cur=cur->next;
+       }
+       cur->next=cur->next->next;
+       ListNode *ans=p->next;
+       delete p;
+       return ans;
+       }
 };
 //20.有效的括号
 class Solution {
@@ -137,6 +408,29 @@ public:
         if(currentlist1==nullptr)current->next=currentlist2;
         else current->next=currentlist1;
         return head->next;
+    }
+};
+//26.删除有序数组中的重复项
+class Solution {
+public:
+//快慢指针
+    int removeDuplicates(vector<int>& nums) {
+        int n=nums.size();
+        if(n==0){
+            return 0;
+        }
+        else{
+       int fast=1,slow=1;
+       while(fast<n){
+           if(nums[fast]!=nums[fast-1]){
+                nums[slow]=nums[fast];
+                ++slow;
+           }
+          ++fast;
+       }
+       return slow;
+
+        }
     }
 };
 //34.在排序数组中查找元素的第一个和最后一个位置
@@ -272,6 +566,96 @@ public:
       return nums.size()+1;
     }
 };
+//45.跳跃游戏Ⅱ
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+       int n=nums.size();
+       int currentdistance=0;
+       int nextdistance=0;
+       int ans=0;
+       if(n==1)return 0;
+       else{
+           for(int i=0;i<nums.size();++i){
+           nextdistance=max(nums[i]+i,nextdistance);
+           if(i==currentdistance){
+            if(currentdistance!=n-1){
+               ans++;
+               currentdistance=nextdistance;
+               if(nextdistance>=n-1)break;
+               }
+               else{
+                   break;
+                   }
+           }
+       }
+    return ans;
+    }
+    
+    }
+};
+//46.全排列
+class Solution {
+public:
+//回溯问题主要解决思想：纵向递归，横向遍历
+   vector<vector<int>>result;
+   vector<int>path;
+   void backtracking(vector<int>& nums, vector<bool>& used){
+       if(path.size()==nums.size())
+       {
+           result.push_back(path);
+           return;
+       }
+       for(int i=0;i<nums.size();++i){
+           if(used[i]==true)continue;
+           used[i]=true;
+           path.push_back(nums[i]);
+           backtracking(nums,used);
+           path.pop_back();
+           used[i]=false;
+       }
+   }
+    vector<vector<int>> permute(vector<int>& nums) {
+       vector<bool>used(nums.size(),false);
+       result.clear();
+       path.clear();
+       backtracking(nums,used);
+       return result;
+    }
+};
+//47.全排列Ⅱ
+//与46相比本题需要返回所有不重复的全排列
+class Solution {
+public: 
+    vector<vector<int>>result;
+   vector<int>path;
+   void backtracking(vector<int>& nums, vector<bool>& used){
+       if(path.size()==nums.size())
+       {
+           result.push_back(path);
+           return;
+       }
+       for(int i=0;i<nums.size();++i){
+           if(i>0&&nums[i]==nums[i-1]&&used[i-1]==false)continue;
+           if(used[i]==false){
+           used[i]=true;
+           path.push_back(nums[i]);
+           backtracking(nums,used);
+           path.pop_back();
+           used[i]=false;
+           }
+       }
+       }
+   vector<vector<int>> permuteUnique(vector<int>& nums) {
+   vector<bool>used(nums.size(),false);
+       result.clear();
+       path.clear();
+       sort(nums.begin(),nums.end());
+       backtracking(nums,used);
+       return result;
+   }
+   
+};
 //54.螺旋矩阵
 class Solution {
 public:
@@ -378,6 +762,24 @@ public:
                 }
             }
             return f[m-1][n-1];
+    }
+};
+//66.加一
+class Solution {
+public:
+  //本题主要考虑当遇到999这种情况的时候要一直进位到第一位，此时就需要一个新的数组去存放答案，
+  //其他情况都可以在输入数组的原址上进行修改
+    vector<int> plusOne(vector<int>& digits) {
+       for(int i=digits.size()-1;i>=0;i--)
+       {
+           digits[i]++;
+           digits[i]=digits[i]%10;
+           if(digits[i]!=0)
+            {return digits;}
+       }
+    vector<int>ans(digits.size()+1);
+    ans[0]=1;
+    return ans;
     }
 };
 //67.二进制求和
