@@ -1,5 +1,109 @@
 //题解太多，以后写在这里面，还可以按顺序进行排列 本周除了这个文件夹的题目还有26 45 46 47 66题
 //以后有时间会逐步把以前的题目挪进来
+//4.寻找两个正序数组的中位数
+class Solution {
+public:
+//新做法，以前合并数组再找中位数的时间复杂度太大
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        if (nums1.size() > nums2.size()) {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+        int m = nums1.size();
+        int n = nums2.size();
+        int left = 0, right = m;
+        // median1：前一部分的最大值
+        // median2：后一部分的最小值
+        int median1 = 0, median2 = 0;
+        while (left <= right) {
+            // 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+            // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+            int i = (left + right) / 2;
+            int j = (m + n + 1) / 2 - i;
+            // nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
+            int nums_im1 = (i == 0 ? INT_MIN : nums1[i - 1]);
+            int nums_i = (i == m ? INT_MAX : nums1[i]);
+            int nums_jm1 = (j == 0 ? INT_MIN : nums2[j - 1]);
+            int nums_j = (j == n ? INT_MAX : nums2[j]);
+            if (nums_im1 <= nums_j) {
+                median1 = max(nums_im1, nums_jm1);
+                median2 = min(nums_i, nums_j);
+                left = i + 1;
+            } else {
+                right = i - 1;
+            }
+        }
+        return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
+    }
+};
+//7.整数反转
+class Solution {
+public:
+    //关键点在于如何判断溢出状况
+    int reverse(int x) {
+       if (x==0)return 0;
+        int ans=0;
+        while(x!=0){
+
+            if(ans<INT_MIN/10||(ans==INT_MIN/10&&x<-8)){
+     	//如果小于INT_MIN/10 还需要去添加下一位 则一定溢出
+                //如果等于INT_MIN/10 且下一位还小于-8（8是INT_MIN最后一位）也会溢出
+                //最大数判别溢出思想相同
+                return 0;
+            }
+            if(ans>INT_MAX/10||(ans==INT_MAX/10&&x>7)){
+                return 0;
+            }
+            ans=ans*10+x%10;
+            x/=10;
+        }
+        return ans;
+    
+    }
+
+};
+//14.最长公共前缀
+class Solution {
+public:
+    string longestCommonPrefix(vector<string>& strs) {
+        int lenth=strs[0].size();
+        int count=strs.size();
+        for(int i=0;i<lenth;++i)
+        {   char c=strs[0][i];
+            for(int j=1;j<count;++j){
+                if(i==strs[j].size()||c!=strs[j][i]){
+                    return strs[0].substr(0,i);
+                    //substr是截取字符串长度 返回的是内容 instr返回位置，两个参数 0为起始位置，i为截取长度
+                }
+            } 
+        }
+        return strs[0];
+
+    }
+};
+//20.有效的括号
+class Solution {
+public:
+    bool isValid(string s) {
+        int n=s.size();
+        stack<int>Stack;
+        for(int i=0;i<n;++i){
+            if(s[i]=='(')
+            {
+                Stack.push(')');
+            }
+            else if(s[i]=='{')
+            {
+                Stack.push('}');
+            }
+           else if(s[i]=='['){
+                Stack.push(']');
+            }
+            else if(Stack.empty()||Stack.top()!=s[i])return false;
+            else Stack.pop();
+        }
+        return Stack.empty();
+    }
+};
 //21.合并两个有序数组
 /**
  * Definition for singly-linked list.
@@ -35,6 +139,270 @@ public:
         return head->next;
     }
 };
+//34.在排序数组中查找元素的第一个和最后一个位置
+class Solution {
+public:
+//这个方法是遍历数组 时间复杂度为O（N）；
+    vector<int> searchRange(vector<int>& nums, int target) {
+        int n=nums.size();
+        int count=0;
+        vector<int>ans;  
+        for(int i=0;i<n;++i){
+            if(nums[i]==target){
+                if(count==0){
+                    ans.push_back(i);
+                    count++;
+                    continue;
+                }
+                count++;
+                }
+        }
+        if(count==0){
+             ans.push_back(-1);
+            ans.push_back(-1);
+            return ans;
+        }
+        else{
+        ans.push_back(ans.back()+count-1);
+        return ans;
+        }
+    }
+};
+//35.搜索插入位置
+class Solution {
+public:
+    int searchInsert(vector<int>& nums, int target) {
+        int n=nums.size();
+        int left=0,right=n-1;
+        int mid;
+        while(left<right){
+            mid=(left+right)/2;
+            if(nums[mid]==target){return mid;}
+            if(nums[mid]>target){
+                right=mid-1;
+            }
+            if(nums[mid]<target){
+                left=mid+1;
+            }
+        }
+        return target<=nums[left]?left:left+1;
+    }
+};
+
+//39.组合总和
+class Solution {
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        result.clear();
+        path.clear();
+        sort(candidates.begin(),candidates.end());
+        backtracking(candidates,target,0,0);
+        return result;
+}
+private:
+    vector<vector<int>>result;
+    vector<int>path;
+    void backtracking(vector<int>& candidates,int target,int sum,int current)
+    {
+       // if(sum>target)return;
+        if(sum==target){
+               result.push_back(path);
+               return ;}
+        for(int i=current;i<candidates.size()&&candidates[i]+sum<=target;++i){
+            sum+=candidates[i];
+            path.push_back(candidates[i]);
+            backtracking(candidates,target,sum,i);
+            sum-=candidates[i];
+            path.pop_back();
+        }
+    }
+};
+//40.组合总和Ⅱ
+//当candidates元素相等时，如果前一个used=false，则同一树层使用过
+//如果used=true，同一树支使用过，避开重复的数组就 当used=false时候跳过此次循环
+class Solution {
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target){
+        vector<bool>used(candidates.size(),false);
+        result.clear();
+        path.clear();
+        sort(candidates.begin(),candidates.end());
+        backtracking(candidates,target,0,0,used);
+        return result;
+}
+private:
+    vector<vector<int>>result;
+    vector<int>path;
+    void backtracking(vector<int>& candidates,int target,int sum,int current,vector<bool>& used)
+    {
+       // if(sum>target)return;
+    
+        if(sum==target){
+               result.push_back(path);
+               return ;}
+        for(int i=current;i<candidates.size()&&candidates[i]+sum<=target;++i){
+            if(i>0&&candidates[i]==candidates[i-1]&&used[i-1]==false){
+           continue;
+       }
+            sum+=candidates[i];
+            path.push_back(candidates[i]);
+            used[i]=true;
+            backtracking(candidates,target,sum,i+1,used);//i+1可以去掉重复选用同一个数组元素的情况
+            sum-=candidates[i];
+            path.pop_back();
+            used[i]=false;
+        }
+    }
+};
+//41.缺失的第一个正数
+class Solution {
+public:
+//主要思想是将每个元素x挪到x-1的位置上，然后遍历数组，第一个不满足条件的就是缺失的第一个正数
+    int firstMissingPositive(vector<int>& nums) {
+        for(int i=0;i<nums.size();++i){
+            while(nums[i]>0&&nums[i]<=nums.size()&&nums[i]!=nums[nums[i]-1]){
+                swap(nums[i],nums[nums[i]-1]);
+            }
+        }
+        for(int i=0;i<nums.size();i++){
+            if(nums[i]!=1+i){
+                return i+1;
+            }
+        }
+      return nums.size()+1;
+    }
+};
+//54.螺旋矩阵
+class Solution {
+public:
+//及时更新每次添加数组的界限，并设定结束循环的条件
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        int m=matrix.size();
+        int n=matrix[0].size();
+        int top=0,down=m-1,left=0,right=n-1;
+        vector<int>ans;
+        while(1){
+            if(left>right) break;
+            for(int i=left;i<=right;i++){
+                ans.push_back(matrix[top][i]);
+            }
+            top++;
+            if(top>down)break;
+            for(int i=top;i<=down;i++){
+                ans.push_back(matrix[i][right]);
+            }
+            right--;
+            if(left>right)break;
+            for(int i=right;i>=left;i--){
+                ans.push_back(matrix[down][i]);
+            }
+            down--;
+            if(top>down)break;
+            for(int i=down;i>=top;i--){
+                ans.push_back(matrix[i][left]);
+            }
+            left++;
+        }
+    return ans;
+  }
+    
+};
+//55.跳跃游戏
+//设定最右侧的值，每次循环进行更新，如果大于数组长度-1，就返回1 否则返回0
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int rightmost=0;
+        for(int i=0;i<nums.size();++i){
+            if(i<=rightmost){
+                rightmost=max(rightmost,nums[i]+i);
+                if(rightmost>=nums.size()-1)return true;
+            }
+        }
+         return false;
+    }
+};
+//58.最后一个单词的长度
+class Solution {
+public:
+    int lengthOfLastWord(string s) {
+        int i=s.size()-1;
+        int count=0;
+        while(s[i]==' '){
+            --i;
+        }
+        while(i>=0&&s[i]!=' '){
+            ++count;
+            --i;
+        }
+        return count;
+    }
+};
+//62.不同路径
+class Solution {
+public:
+//当前不同路径=左边路径+上边路径，动态规划问题
+    int uniquePaths(int m, int n) {
+        vector<vector<int>>f(m,vector<int>(n));
+            for(int i=0;i<m;++i){
+                f[i][0]=1;
+            }
+            for(int j=0;j<n;j++){
+                f[0][j]=1;
+            }
+            for(int i=1;i<m;i++){
+                for(int j=1;j<n;j++){
+                    f[i][j]=f[i-1][j]+f[i][j-1];
+                }
+            }
+            return f[m-1][n-1];
+    }
+};
+//63.不同路径Ⅱ
+class Solution {
+public:
+//本题初始化条件与62不同，其次是当无障碍的时候才进行计算，否则跳过此次循环
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m=obstacleGrid.size();
+        int n=obstacleGrid[0].size();
+        vector<vector<int>>f(m,vector<int>(n));
+            for(int i=0;i<m&&obstacleGrid[i][0]==0;++i)
+                f[i][0]=1;
+            for(int j=0;j<n&&obstacleGrid[0][j]==0;j++){
+                f[0][j]=1;
+            }
+            for(int i=1;i<m;i++){
+                for(int j=1;j<n;j++){
+                    if(obstacleGrid[i][j]==1)continue;
+                    f[i][j]=f[i-1][j]+f[i][j-1];
+                }
+            }
+            return f[m-1][n-1];
+    }
+};
+//67.二进制求和
+class Solution {
+public:
+    //与415.字符串相加类似
+    string addBinary(string a, string b) {
+        int carry=0;
+        int i=a.size()-1;
+        int j=b.size()-1;
+        int current=0;
+        string ans="";
+        while(i>=0||j>=0||carry!=0)//防止产生最高位进位
+        {
+            int x=i>=0?a[i--]-'0':0;
+            int y=j>=0?b[j--]-'0':0;
+            current=(x+y+carry);
+            carry=current/2;
+            ans.push_back('0'+current%2);
+        }
+        reverse(ans.begin(),ans.end());
+        return ans;
+
+    }
+};
 //69.Sqrt(x)
 class Solution {
 public:
@@ -49,6 +417,101 @@ public:
     }
     return left;
  }
+};
+//70.爬楼梯
+class Solution {
+public:
+    int climbStairs(int n) {
+        int q=0,p=0,ans=1;
+       for(int i=1;i<=n;i++){
+           q=p;
+           p=ans;
+           ans=p+q;
+       }
+       return ans;
+    }
+};
+//75.颜色分类
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int left=0;int right=nums.size()-1;
+        int index=0;
+        while(index<=right){
+            if(nums[index]==0){
+                swap(nums[left++],nums[index++]);//左右指针分别是0与2的右/左边界
+            }
+            else if(nums[index]==1)
+            {
+                index++;
+            }
+            else{
+                swap(nums[index],nums[right--]);
+            }
+        }
+   }
+};
+//79.单词搜索
+class Solution {
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        for(int i=0;i<board.size();i++)
+        {
+            for(int j=0;j<board[0].size();j++){
+               if(backtracking(board,word,0,i,j)){return true;
+               }
+            }
+        }
+       return false;
+    }
+private:
+    bool backtracking(vector<vector<char>>&board,string &word,int index,int i,int j){
+        if(board[i][j]!=word[index]){return false;}
+        if(word.size()-1==index){return true;}
+        char tmp=board[i][j];
+        board[i][j]=0;
+        index=index+1;
+        //四个判断 向上向下向左向右递归
+        if((i>0&&backtracking(board,word,index,i-1,j))
+        ||(i<board.size()-1&&backtracking(board,word,index,i+1,j))
+        ||(j>0&&backtracking(board,word,index,i,j-1))
+        ||(j<board[0].size()-1&&backtracking(board,word,index,i,j+1))
+        ){
+            return true;
+        }
+        board[i][j]=tmp;
+        return false;
+    }
+};
+//84.柱状图中最大的矩形
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        int n=heights.size();
+        vector<int>left(n);vector<int>right(n);
+        stack<int>monoStack;
+        int ans=0;
+        for(int i=0;i<n;++i){
+            while(!monoStack.empty()&&heights[monoStack.top()]>=heights[i]){
+                monoStack.pop();
+            }
+            left[i]=(monoStack.empty()?-1:monoStack.top());
+            monoStack.push(i);
+        }
+        monoStack=stack<int>();
+        for(int i=n-1;i>=0;--i){
+            while(!monoStack.empty()&&heights[monoStack.top()]>=heights[i])
+            {
+                monoStack.pop();
+            }
+            right[i]=(monoStack.empty()?n:monoStack.top());
+            monoStack.push(i);
+        }
+        for(int i=0;i<n;++i){
+            ans=max(ans,(right[i]-left[i]-1)*heights[i]);
+        }
+    return ans;
+    }
 };
 //86.分割链表
 /**
@@ -84,4 +547,26 @@ public:
        small->next=largehead->next;
        return smallhead->next;
        }
+};
+//415.字符串相加
+class Solution {
+public:
+    string addStrings(string num1, string num2) {
+        int carry=0;
+        int i=num1.size()-1;
+        int j=num2.size()-1;
+        int current=0;
+        string ans="";
+        while(i>=0||j>=0||carry!=0)//防止产生最高位进位
+        {
+            int x=i>=0?num1[i--]-'0':0;
+            int y=j>=0?num2[j--]-'0':0;
+            current=(x+y+carry);
+            carry=current/10;
+            ans.push_back('0'+current%10);
+        }
+        reverse(ans.begin(),ans.end());
+        return ans;
+
+    }
 };
