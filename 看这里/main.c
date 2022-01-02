@@ -885,6 +885,87 @@ private:
         return false;
     }
 };
+//82删除排序链表中的重复元素Ⅱ
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+
+    ListNode* deleteDuplicates(ListNode* head) {
+    //     //采用递归调用函数来解决，重点是理解函数的作用
+    //    if(head==nullptr||head->next==nullptr)return head;
+    //    ListNode *cur=head;
+    //        if(cur->val!=cur->next->val){
+    //            //相等，对下一节点递归调用函数
+    //            cur->next=deleteDuplicates(cur->next);
+    //        }
+    //        else{
+    //            ListNode *nextnode;
+    //            nextnode=cur->next;
+    //            while(nextnode!=nullptr&&cur->val==nextnode->val){
+    //                nextnode=nextnode->next;
+    //            }
+    //            //不相等，找到不相等的节点，递归调用该节点
+    //            return deleteDuplicates(nextnode);
+    //        }
+
+    //接下来使用链表性质进行一次遍历来解决问题
+    ListNode* Head=new ListNode(0);
+    Head->next=head;
+    ListNode* pre=Head;
+    ListNode* cur=head;
+    while(cur!=nullptr){
+        while(cur->next!=nullptr&&cur->val==cur->next->val){
+            cur=cur->next;
+        }
+        if(pre->next==cur){
+            pre=pre->next;
+            //表示pre下一个元素就是cur 中间没有相同元素，则pre后移一位
+        }
+        else{
+            //如果不是紧邻下一位，因为cur指向相同元素的最后一个，pre指向相同元素的前一个，则pre->next应该指向cur->next
+            pre->next=cur->next;
+        }
+        cur=cur->next;
+    }
+       return Head->next;//返回头节点  新建Head是因为可能会删除头节点
+    }
+};
+//83.删除排序链表中的重复元素
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+//关键点在于while循环的条件，当前节点与下一节点均不为空
+    ListNode* deleteDuplicates(ListNode* head) {
+        ListNode* p=head;
+        while(p!=nullptr&&p->next!=nullptr){
+            if(p->next->val==p->val){
+                p->next=p->next->next;
+            }
+            else{
+            p=p->next;
+            }
+        }
+        return head;
+    }
+};
 //84.柱状图中最大的矩形
 class Solution {
 public:
