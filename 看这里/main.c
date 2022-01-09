@@ -276,6 +276,35 @@ public:
 
     }
 };
+//15.三数之和
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>>ans;
+        sort(nums.begin(),nums.end());
+        for(int i=0;i<nums.size();++i){
+          if(nums[i]>0)return ans;
+          if(i>0&&nums[i]==nums[i-1])continue;  
+          int L=i+1;int R=nums.size()-1;
+           while(L<R){
+               if(nums[i]+nums[L]+nums[R]>0){
+                  R--;
+               }
+              else if(nums[i]+nums[L]+nums[R]<0){
+                   L++;
+               }
+              else if(nums[i]+nums[L]+nums[R]==0){
+              ans.emplace_back(vector<int>{nums[i],nums[L],nums[R]});
+               while(R>L&&nums[R]==nums[R-1]){R--;}//去重操作
+               while(R>L&&nums[L]==nums[L+1]){L++;}
+               R--;
+               L++;
+               }
+           }
+        }
+        return ans;
+    }
+};
 //17.电话号码的字母组合
 class Solution {
     private:
