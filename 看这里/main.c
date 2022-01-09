@@ -410,6 +410,47 @@ public:
         return head->next;
     }
 };
+//24.两两交换链表中的节点
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        // //递归调用
+        // if(head==nullptr||head->next==nullptr){
+        //     return head;
+        // }
+        // ListNode* tmp=new ListNode(0);
+        // tmp=head->next;
+        // head->next=swapPairs(tmp->next);//
+        // tmp->next=head;
+        // return tmp;
+        //迭代法
+        if(head==nullptr||head->next==nullptr){
+            return head;
+        }
+        ListNode* dummyhead=new ListNode(0);
+        dummyhead->next=head;
+        ListNode* tmp=dummyhead;
+        while(tmp->next!=nullptr&&tmp->next->next!=nullptr){
+            ListNode* one=tmp->next;
+            ListNode* two=tmp->next->next;
+            tmp->next=two;
+            one->next=two->next;
+            two->next=one;
+            tmp=tmp->next->next;
+        }
+        return dummyhead->next;
+    }
+};
 //26.删除有序数组中的重复项
 class Solution {
 public:
@@ -431,6 +472,41 @@ public:
        return slow;
 
         }
+    }
+};
+//33.搜索旋转排序数组
+class Solution {
+public:
+    /*二分查找
+    如果前半部分有序则取查找前半部分的
+        在前半部分区间就让右界减小 否则左界增加
+    后半部分则相反*/
+    int search(vector<int>& nums, int target) {
+        int N=nums.size();
+        if(N==0)return -1;
+        if(N==1)return nums[0]==target?0:-1;
+        int l=0,r=N-1;
+        while(l<=r){
+            int mid=(l+r)/2;
+            if(target==nums[mid])return mid;
+            if(nums[0]<=nums[mid]){
+                if(nums[0]<=target&&target<nums[mid]){
+                    r=r-1;
+                }
+                else{
+                    l=l+1;
+                }
+            }
+            else{
+                if(target>nums[mid]&&target<=nums[N-1]){
+                    l=l+1;
+                }
+                else{
+                    r=r-1;
+                }
+            }
+        }
+        return -1;
     }
 };
 //34.在排序数组中查找元素的第一个和最后一个位置
@@ -482,7 +558,37 @@ public:
         return target<=nums[left]?left:left+1;
     }
 };
-
+//36.有效数独
+class Solution {
+public:
+    bool isValidSudoku(vector<vector<char>>& board) {
+        int rows[9][9];
+        int columns[9][9];
+        int little[3][3][9];
+        memset(rows,0,sizeof(rows));
+        //memset函数 将rows后的xx个字节改为0
+        memset(columns,0,sizeof(columns));
+        memset(little,0,sizeof(little));
+        /*遍历一次，设置三个数组，一个存储每行的情况，一个存储每列的情况，最后一个是三维数组存储小九宫格*/
+        //不为，的时候，就在对应位置上加一，最后如果大于1的话就是出现了多次
+        //最后注意九宫格 i/3,j/3 对应于九宫格的位置
+        for(int i=0;i<9;i++){
+            for(int j=0;j<9;j++){
+                char c=board[i][j];
+                if(c!='.'){
+                    int index=c-'0'-1;
+                    rows[i][index]++;
+                    columns[j][index]++;
+                    little[i/3][j/3][index]++;
+                    if(rows[i][index]>1||columns[j][index]>1||little[i/3][j/3][index]>1){
+                        return false;
+                    }
+                }
+            }
+        }
+    return true;
+    }
+};
 //39.组合总和
 class Solution {
 public:
@@ -565,6 +671,29 @@ public:
         }
       return nums.size()+1;
     }
+};
+//42.接雨水
+class Solution {
+public:
+/*初始化两个数组，两次循环，一个存储当前位置左侧最大值，另一个存储右侧最大值，
+又因为短板效应得到每个位置能接到的雨水，再遍历一遍加起来就是结果*/
+    int trap(vector<int>& height) {
+        vector<int>left_max(height.size());
+        vector<int>right_max(height.size());
+        left_max[0]=height[0];
+        for(int i=1;i<height.size();i++){
+            left_max[i]=max(left_max[i-1],height[i]);
+        }
+        right_max[height.size()-1]=height[height.size()-1];
+        for(int j=height.size()-2;j>=0;j--){
+            right_max[j]=max(height[j],right_max[j+1]);
+        }
+        int ans=0;
+        for(int i=0;i<height.size();i++){
+            ans=ans+(min(left_max[i],right_max[i])-height[i]);
+        }
+        return ans;
+      }
 };
 //45.跳跃游戏Ⅱ
 class Solution {
@@ -885,6 +1014,24 @@ private:
         return false;
     }
 };
+//80.删除排序数组中的重复项Ⅱ
+class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+       /* 快慢指针，注意一个元素最多存在的次数*/
+        if(nums.size()<=2)return nums.size();
+
+        int slow=2;int fast=2;
+        while(fast<nums.size()){
+            if(nums[fast]!=nums[slow-2]){
+                nums[slow]=nums[fast];
+                slow++;
+            }
+           fast++;
+        }
+        return slow;
+    }
+};
 //82删除排序链表中的重复元素Ⅱ
 /**
  * Definition for singly-linked list.
@@ -1030,6 +1177,481 @@ public:
        small->next=largehead->next;
        return smallhead->next;
        }
+};
+//100.相同的树
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        if(p==nullptr&&q==nullptr)return true;
+        if(p==nullptr||q==nullptr)return false;
+        if(q->val!=p->val)return false;
+        return isSameTree(p->left,q->left)&&isSameTree(p->right,q->right);
+    }
+};
+//101.对称二叉树
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+class Solution {
+public:
+    /*如果两个节点都为空，则对称，有一个不为空就不对称，都不为空就看数值是否相等，
+    相等时去递归调用，左树的左子节点与右树的右子节点，左数的右子节点与右树的左子节点*/
+    bool function(TreeNode *p,TreeNode *q){
+        if(q==nullptr&&p==nullptr){
+            return true;
+        }
+        if(q==nullptr||p==nullptr){
+            return false;
+        }
+        if(p->val==q->val){
+            return function(p->left,q->right)&&function(p->right,q->left);
+        }
+        return false;
+
+    }
+    bool isSymmetric(TreeNode* root) {
+        return function(root,root);
+    }
+};
+//102.二叉树的层序遍历
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+ class Solution {
+public:
+//广度遍历
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector <vector <int>> ret;
+        if (!root) {
+            return ret;
+        }
+        queue <TreeNode*> q;
+        q.push(root);
+        while (!q.empty()) {//只要队列不为空就一直循环
+            int currentLevelSize = q.size();//当前队列的大小
+            ret.push_back(vector <int> {});//二元数组
+            for (int i = 1; i <= currentLevelSize; ++i) {
+                auto node = q.front();//队列中最旧元素
+                q.pop();//弹出最旧元素
+                ret.back().push_back(node->val);//将元素插入，ret.back是让元素在最新创建的二元数组内插入
+                if (node->left) q.push(node->left);//左子树不为空就加入左节点
+                if (node->right) q.push(node->right);//右子树不为空就加入右节点
+            }
+        }
+        
+        return ret;
+    }
+};
+// class Solution {
+// public:
+//递归遍历
+//    void bianli(TreeNode* root,int depth,vector<vector<int>>&ans){
+//        //如果节点为空就返回
+//        if(root==nullptr){
+//            return ;
+//        }
+//        if(depth>=ans.size())
+//             {//判断层数是否大于数组的大小，如果大于数组的大小则需要扩容
+//                 ans.push_back(vector<int>{});
+//             }
+//        ans[depth].push_back(root->val); //非空节点加入答案
+//        bianli(root->left,depth+1,ans);//先遍历左子树，注意层数需要加一
+//       bianli(root->right,depth+1,ans);//后遍历右子树。
+//    }
+//     vector<vector<int>> levelOrder(TreeNode* root) {
+//         vector<vector<int>>ans;
+//         bianli(root,0,ans);
+//         return ans;
+//     }
+// };
+//103.二叉树的锯齿形层序遍历
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>>ans;//需要返回的数组
+        if(root==nullptr)return ans;
+        queue<TreeNode*>NodeQueue;//储存每一层的节点
+        bool fangxiang=true;
+        //当为真时 在List尾部插入，从左向右遍历，
+        //为假时在List头部插入元素,从右向左遍历，
+        NodeQueue.push(root);
+        while(!NodeQueue.empty()){
+            deque<int>List;//储存每一层的val
+            int N=NodeQueue.size();
+            for(int i=0;i<N;i++){
+                auto Node=NodeQueue.front();
+                //front()取出最旧的节点
+                NodeQueue.pop();//取出后弹出该节点，使用pop()函数
+                if(fangxiang){
+                    List.push_back(Node->val);
+                }else{
+                    List.push_front(Node->val);
+                }
+                if(Node->left){
+                    NodeQueue.push(Node->left);
+                }
+                if(Node->right){
+                    NodeQueue.push(Node->right);
+                }
+            }
+            //循环结束后把此次的List放入ans二元数组中
+            ans.emplace_back(vector<int>{List.begin(),List.end()});//push back与emplace back的区别在于 emplace添加元素在尾部直接构造，不需要触发拷贝构造与转移构造函数，性能更好一些
+            //二元数组的添加数组方法 新建数组，但是不需要写出名字，直接赋予开头与结尾
+            fangxiang=!fangxiang;
+        }
+        return ans;
+    }
+};
+//107.二叉树的层序遍历Ⅱ
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrderBottom(TreeNode* root) {
+        vector<vector<int>>ans;
+        if(root==nullptr)return ans;//特判
+        queue<TreeNode*>NodeQueue;
+        NodeQueue.push(root);
+        while(!NodeQueue.empty()){ 
+            deque<int>List;
+            int Size=NodeQueue.size();
+            for(int i=0;i<Size;i++){
+                auto Node=NodeQueue.front();
+                NodeQueue.pop();
+                List.push_back(Node->val);
+            if(Node->left){
+                NodeQueue.push(Node->left);
+            }
+            if(Node->right){
+                NodeQueue.push(Node->right);
+            }
+            }
+            ans.emplace_back(vector<int>{List.begin(),List.end()});
+        }
+        reverse(ans.begin(),ans.end());
+        return ans;
+    }
+};
+//111.二叉树的最小深度
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root==nullptr){
+            return 0;
+        }
+       if(root->left==nullptr){
+           //空节点不参与比较
+           return 1+minDepth(root->right);
+       }
+       if(root->right==nullptr){
+           return 1+minDepth(root->left);
+       }
+       return 1+min(minDepth(root->left),minDepth( root->right));
+
+    }
+};
+//112.路径总和
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        if(root==nullptr){
+            return false;
+        }
+        if(!root->left&&!root->right&&targetSum==root->val){
+            return true;
+        }
+            return hasPathSum(root->left,targetSum-root->val)||hasPathSum(root->right,targetSum-root->val);
+    }
+};
+//113.路径总和Ⅱ
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:  //递归调用，深度遍历
+    //     vector<vector<int>>ans;
+    //     vector<int>path;
+    // void dfs(TreeNode* root,int targetSum){
+    //         if(root==nullptr){
+    //             return ;
+    //         }
+    //         path.push_back(root->val);
+    //         targetSum=targetSum-root->val;
+    //         if(root->left==nullptr&&root->right==nullptr&&targetSum==0){
+    //             ans.emplace_back(path);//符合要求的加入ans
+    //         }
+    //          dfs(root->left,targetSum);
+    //          dfs(root->right,targetSum);
+    //         path.pop_back();//弹出最新的数组元素
+    //     }
+    // vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+    //     dfs(root,targetSum);
+    //     return ans;
+    // }
+    //广度遍历 广度就是层序 深度是递归，
+    vector<vector<int>>ans;
+    unordered_map<TreeNode*,TreeNode*>parent;
+    void getpath(TreeNode *Node){
+        vector<int>path;
+        while(Node!=nullptr){
+            path.emplace_back(Node->val);
+            Node=parent[Node];
+        }
+        reverse(path.begin(),path.end());
+        ans.emplace_back(path);
+    }
+     vector<vector<int>> pathSum(TreeNode* root, int targetSum){
+            if(root==nullptr){return ans;}
+            queue<TreeNode*>que_Node;
+            queue<int>que_sum;
+            que_Node.emplace(root);
+            que_sum.emplace(0);
+            while(!que_Node.empty()){
+                TreeNode *node=que_Node.front();
+                que_Node.pop();
+                int nums=que_sum.front();
+                que_sum.pop();
+                nums=nums+node->val;
+                if(node->left==nullptr&&node->right==nullptr&&nums==targetSum){
+                    getpath(node);
+                }
+                else{
+                    if(node->left!=nullptr){
+                        parent[node->left]=node;
+                        que_Node.emplace(node->left);
+                        que_sum.emplace(nums);
+                    }
+                    if(node->right!=nullptr){
+                        parent[node->right]=node;
+                        que_Node.emplace(node->right);
+                        que_sum.emplace(nums);
+                    }
+                }
+            }
+            return ans;
+     }
+};
+//118.杨辉三角
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows) {
+        vector<vector<int>>ans(numRows);
+        for(int i=0;i<numRows;i++){
+            ans[i].resize(i+1);//重新确定子数组的大小
+            ans[i][0]=ans[i][i]=1;
+            for(int j=1;j<i;j++){
+          ans[i][j]=ans[i-1][j-1]+ans[i-1][j];//第i个数组由i-1数组指定两个值相加得到
+        }
+    }
+    return ans;
+    }
+};
+//119.杨辉三角Ⅱ
+class Solution {
+public:
+    vector<int> getRow(int rowIndex) {
+       vector<int>cur,pre;
+       for(int i=0;i<rowIndex+1;i++){
+           cur.resize(i+1);
+           cur[0]=cur[i]=1;
+           for(int j=1;j<i;j++){
+               cur[j]=pre[j-1]+pre[j];
+           }
+           pre=cur;
+       }
+        return cur;
+    }
+};
+//120.三角形最小路径
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        //自下向上的
+        /*int n=triangle.size();
+        int i=n-1;//3
+        while(i--){//后置递减 先判断是否进入循环再递减
+        //自下向上计算，从倒数第二层开始改变每层的数值为当前数值＋下一层的最小值
+            for(int j=0;j<i+1;j++){
+                triangle[i][j]+=min(triangle[i+1][j],triangle[i+1][j+1]);
+            }
+        }
+        return triangle[0][0];*/
+        //自上向下的
+        int n=triangle.size();
+        vector<vector<int>>ans(n,vector<int>(n));
+        ans[0][0]=triangle[0][0];
+        for(int i=1;i<n;i++){
+            ans[i][0]=triangle[i][0]+ans[i-1][0];
+            for(int j=1;j<i;j++){
+                ans[i][j]=min(ans[i-1][j],ans[i-1][j-1])+triangle[i][j];
+            }
+            ans[i][i]=triangle[i][i]+ans[i-1][i-1];
+        }
+        return *min_element(ans[n-1].begin(),ans[n-1].end());
+    }
+};
+//121.买卖股票的最佳时机
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        vector<int>right_max(prices.size());
+        vector<int> ans(prices.size());
+        right_max[prices.size()-1]=prices[prices.size()-1];
+        for(int i=prices.size()-2;i>=0;i--){
+            right_max[i]=max(right_max[i+1],prices[i]);
+        }
+        for(int i=0;i<prices.size();i++){
+            ans[i]=right_max[i]-prices[i];
+        }
+        int a=*max_element(ans.begin(),ans.end());
+        if(a>=0){
+            return a;
+        }
+        else{
+            return 0;
+        }
+       
+    }
+};
+//169.多数元素
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        /*int n=nums.size();
+        unordered_map<int ,int>hash;
+        int ans=0;
+        for(int i=0;i<n;i++){
+            hash[nums[i]]++;
+            if(hash[nums[i]]>n/2){
+                ans=nums[i];      
+                break;
+                }
+        }
+        return ans;*/
+        //投票算法
+        //是满足要求的会支持自己，其他人反对 因为终将过半，所以一定会找到正确答案
+        int n=nums.size();
+        int count=0;
+        int ans=-1;
+        for(int i=0;i<n;i++){
+            if(nums[i]==ans){
+                count++;
+            }
+            else if(--count<0){
+                ans=nums[i];
+                count=1;
+            }
+        }
+        return ans;
+    }
+};
+//190.颠倒二进制位
+class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t ans=0;
+        //新建的一个答案无符号32位 逐位把n的最后一位添加到ans后
+        for(int i=0;i<32;i++){
+            ans=ans<<1;
+            ans+=n&1; //&按位与运算，得到n的最后一位并加在ans的后面
+            n=n>>1;
+        }
+        return ans;
+    }
+};
+//191.位1的个数
+class Solution {
+public:
+    int hammingWeight(uint32_t n) {
+        int ans=0;
+        for(int i=0;i<32;i++){
+            if(n&1){
+                ans++;
+                //逐位按位与，如果是1则ans自增 不管是否是1 判断后都需要对n向右移位
+                n>>=1;
+            }
+            else{
+                n>>=1;
+            }
+        }
+        return ans;
+    }
 };
 //415.字符串相加
 class Solution {
