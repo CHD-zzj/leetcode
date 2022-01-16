@@ -151,6 +151,28 @@ public:
         return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
     }
 };
+//6.字形变换
+class Solution {
+public:
+    string convert(string s, int numRows) {
+        if(numRows==1)return s;
+        vector<string>ans(min(numRows,int(s.size())));
+        bool signal=false;
+        int row=0;
+        for(char c:s){
+            ans[row]+=c;
+            if(row==0||row==numRows-1){
+                signal=!signal;
+            }
+           row+=signal ? 1:-1;
+        }
+    string ret;
+    for(string rows:ans){
+        ret +=rows;
+        }
+    return ret;
+    }
+};
 //7.整数反转
 class Solution {
 public:
@@ -618,6 +640,48 @@ public:
     return true;
     }
 };
+//37.解数独
+class Solution {
+public:
+//标准的回溯算法
+    bool backtracking(vector<vector<char>>&board){
+        for(int i=0;i<board.size();i++){
+            for(int j=0;j<board[0].size();j++){
+                if(board[i][j]!='.')continue;
+                for(char k='1';k<='9';k++){
+                    if(isright(i,j,k,board)){
+                        board[i][j]=k;
+                        if(backtracking(board))return true;
+                        board[i][j]='.';
+                    } 
+                }
+                 return false;//数都试完了，没有正确解就返回false
+            }
+        }
+        return true;//遍历整个board没有return false就说明找到合适的解了
+    }
+    bool isright(int i,int j,char c,vector<vector<char>>&board){
+        for(int a=0;a<9;a++)
+        {
+            if(board[i][a]==c)return false;
+        }
+        for(int b=0;b<9;b++)
+        {
+            if(board[b][j]==c)return false;
+        }
+        int row=(i/3)*3;
+        int col=(j/3)*3;
+        for(int k=row;k<row+3;k++){
+            for(int l=col;l<col+3;l++){
+            if(board[k][l]==c)return false;
+            }
+        }
+        return true;
+    }
+    void solveSudoku(vector<vector<char>>& board) {
+        backtracking(board);
+    }
+};
 //39.组合总和
 class Solution {
 public:
@@ -813,6 +877,99 @@ public:
        return result;
    }
    
+};
+//51.N皇后
+class Solution {
+public:
+    vector<vector<string>>result;
+    void backtracking(int n,int row,vector<string>&chessboard){
+        if(row==n){
+            result.emplace_back(chessboard);
+            return ;//如果符合要求则加入result
+        }
+       for(int col=0;col<n;col++){
+           if(iscorrect(col,row,chessboard,n)){
+               chessboard[row][col]='Q';
+               backtracking(n,row+1,chessboard);
+               chessboard[row][col]='.';
+           }
+       }
+    }
+    bool iscorrect(int col,int row,vector<string>&chessboard,int n){
+        for(int i=0;i<row;i++){
+        if(chessboard[i][col]=='Q')return false;//检查列
+        }
+        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
+            if(chessboard[i][j]=='Q')return false;//检查左上方
+        }
+        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
+            if(chessboard[i][j]=='Q')return false;//检查右下方
+        }
+        return true;
+    }
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string>chessboard(n,string(n,'.'));//定义n*n的数组
+        result.clear();
+        backtracking(n,0,chessboard);
+        return result;
+    }
+};
+//52.N皇后Ⅱ
+class Solution {
+public: 
+//缺 二进制移位法
+    void backtracking(int n,int row,vector<string>&chessboard){
+        if(row==n){
+            result.emplace_back(chessboard);
+            return ;//如果符合要求则加入result
+        }
+       for(int col=0;col<n;col++){
+           if(iscorrect(col,row,chessboard,n)){
+               chessboard[row][col]='Q';
+               backtracking(n,row+1,chessboard);
+               chessboard[row][col]='.';
+           }
+       }
+    }  
+    bool iscorrect(int col,int row,vector<string>&chessboard,int n){
+        for(int i=0;i<row;i++){
+        if(chessboard[i][col]=='Q')return false;//检查列
+        }
+        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
+            if(chessboard[i][j]=='Q')return false;//检查左上方
+        }
+        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
+            if(chessboard[i][j]=='Q')return false;//检查右下方
+        }
+        return true;
+    }
+     vector<vector<string>>result;
+    int totalNQueens(int n) {
+        vector<string>chessboard(n,string(n,'.'));//定义n*n的数组
+        result.clear();
+        backtracking(n,0,chessboard);
+        return result.size();
+    }
+ /*int dfs(int n,int row,int colum,int dis1,int dis2){ 
+        if(row==n){
+            return 1;
+        }
+        else{ 
+            int count=0;
+             int aviliable=((1<<n)-1)&(~(colum|dis1|dis2));
+        while(aviliable!=0){ 
+           int position=aviliable&(-aviliable);
+            aviliable=aviliable&(aviliable-1);
+           count+=dfs(n,row+1,colum|position,(dis1|position)<<1,(dis2|position)>>1);
+        }
+          return count;
+        }
+    }
+    int totalNQueens(int n) {
+      int ans= dfs(n,0,0,0,0);
+       return ans;
+    }*/
+    
 };
 //54.螺旋矩阵
 class Solution {
@@ -1170,6 +1327,54 @@ public:
             ans=max(ans,(right[i]-left[i]-1)*heights[i]);
         }
     return ans;
+    }
+};
+//85.最大矩形
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        if (matrix.empty()) return 0;
+        vector<int> heights(matrix[0].size(), 0);
+        int maxArea = 0;
+        for (vector<char>& row : matrix)
+        {
+            for (int i = 0; i < row.size(); ++ i)
+            {
+                if (row[i] == '0') heights[i] = 0;  //当前格子为0，则它所在的柱子高度为0
+                else heights[i] ++ ;                //格子为1，则它的高度为上一行同位置高度+1
+            }
+            //每遍历完一行，就计算以这行为基线的直方图最大面积
+            maxArea = max(maxArea, largestRectangleArea(heights));
+        }
+        return maxArea;
+    }
+
+    //使用单调栈求直方图最大矩形面积的方法
+    //维护一个单调递增的栈
+    int largestRectangleArea(vector<int>& heights) {
+        stack<int> stk;
+        stk.push(-1);
+        int maxArea = 0;
+        for (int i = 0; i < heights.size(); ++ i)
+        {
+            while (stk.top() != -1 && heights[stk.top()] > heights[i])
+            {
+                int height = heights[stk.top()];
+                stk.pop();
+                int width = i - stk.top() - 1;
+                maxArea = max(maxArea, height * width);
+            }
+            stk.push(i);
+        }
+        while (stk.top() != -1)
+        {  
+            int height = heights[stk.top()];
+            stk.pop();
+            int width =heights.size()  - stk.top() - 1;
+            //用数组长度减去左边仅次于当前height高度的柱子的位置再-1得到宽度
+            maxArea = max(maxArea, height * width);
+        }
+        return maxArea;
     }
 };
 //86.分割链表
@@ -1618,6 +1823,219 @@ public:
        
     }
 };
+//125.验证回文串
+class Solution {
+public:
+    bool isPalindrome(string s) {
+       int left=0;
+       int right=s.length()-1;
+       while(left<right){
+           while(left<right&&!isalnum(s[left])){
+               ++left;
+           }
+           while(left<right&&!isalnum(s[right])){
+               //isalnum():判断字符是否为a-z/A-Z/0-9;是返回1 否则返回0;
+               --right;
+           }
+           if(left<right){
+               if(tolower(s[left])!=tolower(s[right])){
+                   //tolower将字母转换为小写，对非字母字符不做要求
+                   return false;
+               }
+           else{
+               left++;
+               right--;
+           }
+           }
+       }
+       return true;
+    }
+};
+//129.求根节点到叶子节点数字之和
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int ans(TreeNode *root,int sum){
+        if(root==nullptr)return 0;//如果为空节点返回0;
+        if(!root->left&&!root->right)return root->val+10*sum;//遇到叶子节点，返回此时节点的数+sum*10;
+        return ans(root->left,10*sum+root->val)+ans(root->right,10*sum+root->val);
+    }
+    int sumNumbers(TreeNode* root) {
+     return ans(root,0);
+    }
+};
+//136.只出现一次的数字
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int ans=nums[0];
+        for(int i=1;i<nums.size();i++){
+           ans=ans^nums[i];
+        }
+        //异或运算，
+        //任何数与0异或都是其本身，任何数与自身异或都是0，而且异或可以进行交换律
+        //按顺序进行异或，相等的数都变为了0，只出现一次的数最后就是答案
+        return ans;
+    }
+};
+//137.只出现一次的数字Ⅱ
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        // unordered_map<int,int>hash;
+        // int ans;
+        // for(int i=0;i<nums.size();++i){ 
+        //         hash[nums[i]]++;
+        //     }
+        // for(int i=0;i<nums.size();i++){
+        //     if(hash[nums[i]]!=3){
+        //         ans=nums[i];
+        //         break;
+        //     }
+        // }
+        // return ans;
+        //位运算方法，32位数，将数组中的数逐位相加，
+        //因为出现三次的数加起来是3的倍数，所以逐位对3取余数 最后非0的数就是仅出现一次的元素
+        int ans=0;
+        for(int i=0;i<32;i++){
+            int sum=0;
+            for(int j=0;j<nums.size();j++){
+                sum+=((nums[j]>>i)&1);
+            }
+            if(sum%3==1){
+                    ans=ans|(1<<i);
+                }
+        }
+        return ans;
+    }
+};
+//141.环形链表
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        ListNode *fast=head;
+        ListNode *slow=head;
+        //因为空链表与单节点链表一定不会有环
+        while(fast!=NULL&&fast->next!=NULL){
+            fast=fast->next->next;
+            slow=slow->next;
+            if(fast==slow)return true;
+        }
+        return false;
+    }
+};
+//142.环形链表Ⅱ
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        // ListNode *slow=head;
+        // ListNode *fast=head;
+        // while(fast!=NULL){
+        //         slow=slow->next;
+        //         if(fast->next==NULL)return NULL;
+        //         fast=fast->next->next;
+        //         if(slow==fast){
+        //             ListNode *p=head;
+        //             while(p!=slow){
+        //                 slow=slow->next;
+        //                 p=p->next;
+        //             }
+        //             return p;
+        //         }
+        // }
+        // return NULL;
+        unordered_set<ListNode*>hash;//hash表 存在当前节点就返回，不存在就新增，遍历结束后就找到了环的入口
+        while(head!=NULL){
+            if(hash.count(head)){
+                return head;
+            }
+            else{
+                hash.emplace(head);
+            }
+            head=head->next;
+        }
+        return NULL;
+    }
+};
+//144.二叉树的前序遍历
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int>ans;
+    void get(TreeNode* root,vector<int>&ans){
+        if(root==nullptr)return ;
+        ans.emplace_back(root->val);
+        get(root->left,ans);
+        get(root->right,ans);
+    }
+    vector<int> preorderTraversal(TreeNode* root) {
+        get(root,ans);
+        return ans;
+    }
+};
+//145.二叉树的后序遍历
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int>ans;
+    void get(TreeNode* root,vector<int>&ans){
+        if(root==nullptr)return ;
+        get(root->left,ans);
+        get(root->right,ans);
+        ans.emplace_back(root->val);
+       
+    }
+    vector<int> postorderTraversal(TreeNode* root) {
+        get(root,ans);
+        return ans;
+    }
+};
 //169.多数元素
 class Solution {
 public:
@@ -1646,6 +2064,39 @@ public:
                 ans=nums[i];
                 count=1;
             }
+        }
+        return ans;
+    }
+};
+//172.阶乘后的零
+class Solution {
+public:
+    int trailingZeroes(int n) {
+        //只有2，5相乘才会出现0，又因为2的频率比5高 所以仅计数5的个数
+        //n/5+n/25.... 25比5多贡献一个5的因子，一直循环到a>n 
+        int ans=0;
+        int a=5;
+        while(n>=a){
+            ans+=(n/a);
+            a*=5;
+        }
+        return ans;
+    }
+};
+//179.最大数
+class Solution {
+public:
+   static bool cmp(int a,int b){
+       //static修饰函数，静态函数 ，仅在此处可以使用
+    string sa=to_string(a);
+    string sb=to_string(b);
+    return sa+sb>sb+sa;
+    }
+    string largestNumber(vector<int>& nums) {
+        sort(nums.begin(),nums.end(),cmp);
+        string ans;
+        for(auto num:nums){
+            if(!(num==0&&ans[0]=='0'))ans+=to_string(num);
         }
         return ans;
     }
@@ -1682,6 +2133,66 @@ public:
         return ans;
     }
 };
+//202.快乐数
+class Solution {
+public:
+    int get_next(int n){
+        int next=0;
+        while(n>0){
+            int nums=n%10;
+            next+=nums*nums;
+            n=n/10;
+        }
+        return next;
+    }
+    bool isHappy(int n) {
+       unordered_set<int>hash;//hash集合
+        //erase(a);在哈希集occ中删去a
+        //insert(a);向哈希集插入a
+        //count(a);判断哈希集中是否存在a
+        while(!hash.count(n)){
+            //哈希表中不存在当前n才进入循环 ，否则返回false
+            hash.insert(n);//如果不存在当前n，就插入
+            n=get_next(n);//n=当前各位平方取和
+            if(n==1){//符合要求的话返回true
+                return true;
+            }
+        }
+    return false;
+    }
+};
+//233.数字1的个数
+class Solution {
+public:
+    // int count(int n){
+        //超时写法
+    //     int ret=0;
+    //     while(n!=0){
+    //         int x=n%10;
+    //         if(x==1){
+    //             ret++;
+    //         }
+    //         n/=10;
+    //     }
+    //     return ret;
+    // }
+    int countDigitOne(int n) {
+        // if(n==1)return 1;
+        // int ans=0;
+        // for(int i=1;i<=n;i++){
+        //     ans+=count(i);
+        // }
+        // return ans;
+        long long pow=1;
+        int ans=0;
+        for(;n>=pow;){
+            ans+=(n/(10*pow)*pow+min(max(n%(10*pow)-pow+1,0LL),pow));//0LL是longlong形式下的0
+            //分为当前位前 与后，统计1的个数
+            pow=pow*10;
+        }
+        return ans;
+    }
+ };
 //415.字符串相加
 class Solution {
 public:
@@ -1703,4 +2214,70 @@ public:
         return ans;
 
     }
+};
+//950.按递增顺序显示卡牌
+class Solution {
+public:
+    vector<int> deckRevealedIncreasing(vector<int>& deck) {
+      sort(deck.begin(), deck.end());
+        deque<int>start;
+        deque<int>ans;
+        vector<int>ret;
+        for (int i = 0; i < deck.size(); i++) {
+            start.push_back(deck[i]);
+        }
+        while (!start.empty()) {
+            if (ans.empty()) { 
+                ans.push_back(start.back()); 
+                start.pop_back();
+            }
+            int tmp = ans.back();  
+            ans.push_front(tmp);
+            ans.pop_back();
+           if( start.empty()){//单独输入1时 不能通过
+               break;
+               }else{
+                   ans.push_front(start.back());
+                   }
+            start.pop_back();
+            }
+        while (!ans.empty()) {
+            ret.push_back(ans.front());
+            ans.pop_front();
+        }
+        return ret;
+    }
+};
+//1827.最少操作使数组递增
+class Solution {
+public:
+    //超时写法
+    // bool isincrease(vector<int>&nums,int n){
+    //     if(nums[n]<nums[n+1])return true;
+    //     else return false;
+    // }
+    // int minOperations(vector<int>& nums) {
+    //     int count=0;
+    //     for(int i=0;i<nums.size()-1;i++){
+    //         while(!isincrease(nums,i))
+    //         {
+    //             nums[i+1]++;
+    //             count++;
+    //         }
+    //     }
+    //     return count;
+    // }
+    
+     int minOperations(vector<int>& nums) {
+          int ans=0;
+         for(int i=1;i<nums.size();i++){
+             if(nums[i]<=nums[i-1]){
+	//注意是得到递增的次数，不是逐次递增
+                 ans+=(nums[i-1]-nums[i]+1);
+                 nums[i]=nums[i-1]+1;
+                 
+             }
+         }  
+        return ans;
+     }
 };
