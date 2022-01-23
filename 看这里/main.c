@@ -971,6 +971,31 @@ public:
     }*/
     
 };
+//53.最大子数组和
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+    //  vector<int>dp(nums.size(),0);
+    //  dp[0]=nums[0];
+    //  for(int i=1;i<nums.size();i++){
+    //      dp[i]=max(nums[i],dp[i-1]+nums[i]);
+    //  }
+    //  int res=INT_MIN;
+    //  for(int i=0;i<nums.size();i++){
+    //      res=max(dp[i],res);
+    //  }
+    //  return res;
+     //省内存写法
+     int dp[2]={nums[0],0};
+     int res=dp[0];
+     for(int i=1;i<nums.size();i++){
+         dp[1]=max(nums[i],dp[0]+nums[i]);
+         res=max(res,dp[1]);
+         dp[0]=dp[1];
+     }
+     return res;
+    }
+};
 //54.螺旋矩阵
 class Solution {
 public:
@@ -1079,6 +1104,41 @@ public:
             return f[m-1][n-1];
     }
 };
+//64.最小路径和
+class Solution {
+public:
+    int minPathSum(vector<vector<int>>& grid) {
+        // vector<vector<int>>dp(grid.size(),vector<int>(grid[0].size(),0));
+        // dp[0][0]=grid[0][0];
+        // for(int i=1;i<grid.size();i++){
+        //     dp[i][0]=dp[i-1][0]+grid[i][0];
+        // }
+        // for(int j=1;j<grid[0].size();j++){
+        //     dp[0][j]=dp[0][j-1]+grid[0][j];
+        // }
+        // for(int i=1;i<grid.size();i++){
+        //     for(int j=1;j<grid[0].size();j++)
+        //     dp[i][j]=min(dp[i-1][j],dp[i][j-1])+grid[i][j];
+        // }
+        // return dp[grid.size()-1][grid[0].size()-1];
+    //只用一维数组的方法
+        vector<int>dp(grid[0].size(),0);
+        dp[0]=grid[0][0];
+        for(int j=1;j<grid[0].size();j++){
+            dp[j]=grid[0][j]+dp[j-1];
+        }
+        int tmp=grid[0][0];
+        for(int i=1;i<grid.size();i++){
+            tmp=tmp+grid[i][0]; 
+            int t=tmp;
+            for(int j=1;j<grid[0].size();j++){
+            dp[j]=min(dp[j],t)+grid[i][j];
+            t=dp[j];
+            }
+        }
+        return dp[grid[0].size()-1];
+    }
+};
 //66.加一
 class Solution {
 public:
@@ -1146,6 +1206,36 @@ public:
            ans=p+q;
        }
        return ans;
+    }
+};
+//72.编辑距离
+class Solution {
+public: 
+    int Min(int a,int b,int c){
+        return min(a,min(b,c));
+    }
+    int minDistance(string word1, string word2) {
+       vector<vector<int>>dp(word1.size()+1,vector<int>(word2.size()+1,0));
+        //dp含义：dp[i][j]返回 word1[0~i] word2[0~j]的最小编辑距离,初始化为0；
+        for(int i=1;i<=word1.size();i++){
+            dp[i][0]=i;
+        }
+        for(int j=1;j<=word2.size();j++){
+            dp[0][j]=j;
+        }
+        for(int i=1;i<=word1.size();i++){
+            for(int j=1;j<=word2.size();j++){
+                if(word1[i-1]==word2[j-1]){dp[i][j]=dp[i-1][j-1];}//注意字符串与dp数组的对应关系
+                else{
+                    dp[i][j]=Min(
+                        dp[i][j-1]+1,//word1尾部插入word2[j]元素,j-1
+                        dp[i-1][j]+1,//word1尾部删除word2[j]元素,i-1
+                        dp[i-1][j-1]+1//替换为相同的元素 i,j均-1
+                    );
+                }
+            }
+        }
+    return dp[word1.size()][word2.size()];
     }
 };
 //75.颜色分类
@@ -1411,6 +1501,22 @@ public:
        small->next=largehead->next;
        return smallhead->next;
        }
+};
+//96.不同的二叉搜索树
+class Solution {
+public:
+    int numTrees(int n) {
+        //找规律，假设有五个节点，则dp[5]就是 左0*右4+左1右3＋左2右2+左3右1+左4右0
+        //动态规划
+        vector<int>dp(n+1);
+        dp[0]=1;
+        for(int i=1;i<=n;i++){
+            for(int j=0;j<i;j++){
+                dp[i]+=dp[j]*dp[i-1-j];
+            }
+        }
+        return dp[n];
+    }
 };
 //100.相同的树
 /**
@@ -1874,6 +1980,39 @@ public:
      return ans(root,0);
     }
 };
+//131.分割回文串
+class Solution {
+public:
+    bool isright(const string &s,int start,int end){
+        for(int i=start,j=end;i<j;i++,j--){
+            if(s[i]!=s[j]){
+              return false;
+        }
+        }
+        return true;
+    }
+    vector<string>path;
+    vector<vector<string>>ans;
+    void backtracking(int startindex,string s){
+        if(startindex>=s.size()){
+            ans.push_back(path);
+        }
+        for(int i=startindex;i<s.size();i++){
+            if(isright(s,startindex,i)){
+                string str=s.substr(startindex,i-startindex+1);
+                path.push_back(str);
+            }else{
+                continue;
+            }
+            backtracking(i+1,s);
+            path.pop_back();
+        }
+    }
+    vector<vector<string>> partition(string s) {
+        backtracking(0,s);
+        return ans;
+    }
+};
 //136.只出现一次的数字
 class Solution {
 public:
@@ -1917,6 +2056,24 @@ public:
                 }
         }
         return ans;
+    }
+};
+//139.单词拆分
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        vector<bool> dp(s.size() + 1, false);
+        dp[0] = true;
+        for (int i = 1; i <= s.size(); i++) {   // 遍历背包
+            for (int j = 0; j < i; j++) {       // 遍历物品
+                string word = s.substr(j, i - j); //substr(起始位置，截取的个数)
+                if (wordSet.find(word) != wordSet.end() && dp[j]) {
+                    dp[i] = true;
+                }
+            }
+        }
+        return dp[s.size()];
     }
 };
 //141.环形链表
@@ -2036,6 +2193,77 @@ public:
         return ans;
     }
 };
+//160.相交链表
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        //哈希表
+        // unordered_set<ListNode*>visited;
+        // ListNode* tmp=headA;
+        // while(tmp!=NULL){
+        //     visited.emplace(tmp);
+        //     tmp=tmp->next;
+        // }
+        // tmp=headB;
+        // while(tmp!=NULL){
+        //     if(visited.find(tmp)!=visited.end()){
+        //         return tmp;
+        //     }
+        //     tmp=tmp->next;
+        // }
+        // return NULL;
+        //假设链表a长度是 m+c，b是n+c且有交点，则在相遇以前a节点走的路程为m+c+n,b节点走的路程为n+c+m，
+        ListNode* a=headA;
+        ListNode* b=headB;
+       if(headB==NULL||headA==NULL)return NULL;
+       while(a!=b){
+           a=a==NULL?headB:a->next;
+           b=b==NULL?headA:b->next;
+       }
+       return a;
+    }
+};
+//167.两数之和Ⅱ
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& numbers, int target) {
+     //双指针
+    //  int left=0;int right=numbers.size()-1;
+    //  while(left<right){
+    //      int sum=numbers[left]+numbers[right];
+    //      if(sum==target){
+    //         return {left+1,right+1};
+    //      }
+    //      else if(sum>target){
+    //          right--;
+    //      }
+    //      else{
+    //          left++;
+    //      }
+    //  }
+    //  return {-1,-1};
+     //二分查找
+     
+     for(int i=0;i<numbers.size();i++){
+         int left=i+1;int right=numbers.size()-1;
+         while(left<=right){
+              int mid=(left+right)/2;
+            if(numbers[mid]==target-numbers[i])return {i+1,mid+1};
+            else if(numbers[mid]>target-numbers[i])right=mid-1;
+            else left=mid+1;
+         }
+     }
+     return {-1,-1};
+    }
+};
 //169.多数元素
 class Solution {
 public:
@@ -2081,6 +2309,23 @@ public:
             a*=5;
         }
         return ans;
+    }
+};
+//174.地下城游戏
+class Solution {
+public:
+    int calculateMinimumHP(vector<vector<int>>& dungeon) {
+        int n = dungeon.size(), m = dungeon[0].size();
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, INT_MAX));
+        dp[n][m - 1] = dp[n - 1][m] = 1;
+        //dp[i][j]表示，从i,j到终点最少需要多少血量
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = m - 1; j >= 0; --j) {
+                int minn = min(dp[i + 1][j], dp[i][j + 1]);
+                dp[i][j] = max(minn - dungeon[i][j], 1);
+            }
+        }
+        return dp[0][0];
     }
 };
 //179.最大数
@@ -2133,6 +2378,33 @@ public:
         return ans;
     }
 };
+//198.打家劫舍
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        // if(nums.size()==1)return nums[0];
+        // vector<int>dp(nums.size(),0);
+        // dp[0]=nums[0];
+        // dp[1]=max(nums[0],nums[1]);
+        // for(int i=2;i<nums.size();i++){
+        //     dp[i]=max(dp[i-2]+nums[i],dp[i-1]);
+        // }
+        // int res=0;
+        // for(int i=0;i<nums.size();i++){
+        //     res=max(res,dp[i]);
+        // }
+        // return res;
+//省内存写法，仅需要两个int变量
+        if(nums.size()==1)return nums[0];
+        int first=nums[0],second=max(nums[0],nums[1]);
+        for(int i=2;i<nums.size();i++){
+            int tmp=second;
+            second=max(first+nums[i],second);
+            first=tmp;
+        }
+        return max(second,first);
+    }
+};
 //202.快乐数
 class Solution {
 public:
@@ -2159,6 +2431,46 @@ public:
             }
         }
     return false;
+    }
+};
+//213.打家劫舍Ⅱ
+class Solution {
+public:
+    int robrange(int start,int end,vector<int>nums){
+        int first=nums[start],second=max(nums[start+1],nums[start]);
+        for(int i=start+2;i<=end;i++){
+            int tmp=second;
+            second=max(first+nums[i],second);
+            first=tmp;
+        }
+        return max(first,second);
+
+    }
+    int rob(vector<int>& nums) {
+        if(nums.size()==1||nums.size()==2){
+            return nums.size()==1?nums[0]:max(nums[1],nums[0]);
+        }
+        int n=nums.size();
+        //分范围讨论，打劫第一家就跳过最后一家，打劫最后一家就从第二家开始
+        return max(robrange(0,n-2,nums),robrange(1,n-1,nums));
+    }
+};
+//219.存在重复元素Ⅱ
+class Solution {
+public:
+    bool containsNearbyDuplicate(vector<int>& nums, int k) {
+        unordered_map<int, int> dictionary;
+        int length = nums.size();
+        for (int i = 0; i < length; i++) {
+            int num = nums[i];
+            //如果存在该num,检查是否满足下标要求 满足就返回true
+            if (dictionary.count(num) && i - dictionary[num] <= k) {
+                return true;
+            }
+            //不存在或者不满足就继续键值对/不满足下标范围要求的 会更新第二次出现的大的那一个下标
+            dictionary[num] = i;//<nums[i],i>将值与下标对应的键值对
+        }
+        return false;
     }
 };
 //233.数字1的个数
@@ -2193,6 +2505,99 @@ public:
         return ans;
     }
  };
+//268.丢失得数字
+class Solution {
+ public:
+   int missingNumber(vector<int>& nums) {
+//         int ans;
+//        vector<bool>a(nums.size()+1,false);
+//        for(int i=0;i<nums.size();i++){
+//          a [ nums[i]]=true;
+//        }
+//        for(int i=0;i<a.size();i++){
+//            if(a[i]!=true){
+//                ans=i;
+//                break;
+//        }}
+//        return ans;
+//求和再减
+    int cursum=0;
+    int sum=0;
+    for(int i=0;i<nums.size();i++){
+        cursum+=nums[i];
+    }
+    for(int i=0;i<=nums.size();i++){
+        sum+=i;
+    }
+    return sum-cursum;
+    }
+ };
+// class Solution {
+// public:
+// //异或所有数后再依次异或[0,n]所剩下得就是第一次没出现得数，即就是答案
+//     int missingNumber(vector<int>& nums) {
+//         int res = 0;
+//         int n = nums.size();
+//         for (int i = 0; i < n; i++) {
+//             res ^= nums[i];
+//         }
+//         for (int i = 0; i <= n; i++) {
+//             res ^= i;
+//         }
+//         return res;
+//     }
+// };
+//300.最长递增子序列
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int>dp(nums.size(),1);
+        for(int i=0;i<nums.size();i++){
+            for(int j=0;j<i;j++){
+                if(nums[i]>nums[j]){
+                    dp[i]=max(dp[i],dp[j]+1);
+                }
+            }
+        }
+        int ans=0;
+        for(int i=0;i<nums.size();i++){
+            ans=max(ans,dp[i]);
+        }
+     return ans;
+    }
+};
+//322.零钱兑换
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        vector<int>dp(amount+1,amount+1);
+        dp[0]=0;
+        for(int i=0;i<dp.size();i++){
+            for(auto coin:coins){
+                if(i-coin<0){continue;}
+                dp[i]=min(dp[i],dp[i-coin]+1);
+            }
+
+        }
+        return dp[amount]==amount+1?-1:dp[amount];//判断是否有解
+    }
+};
+//343.整数拆分
+class Solution {
+public:
+    int integerBreak(int n) {
+        vector <int> dp(n + 1);
+        dp[2]=1;
+        for (int i = 3; i <= n; i++) {
+            int curMax = 0;
+            for (int j = 1; j < i; j++) {
+                curMax =max(curMax, max(j*(i - j), j*dp[i - j]));
+            }
+            dp[i] = curMax;
+        }
+        return dp[n];
+    }
+};
 //415.字符串相加
 class Solution {
 public:
@@ -2212,7 +2617,81 @@ public:
         }
         reverse(ans.begin(),ans.end());
         return ans;
-
+    }
+};
+//416.分割等和子集
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int sum=0;
+        for(int i=0;i<nums.size();i++){
+            sum+=nums[i];
+        }
+        if(sum%2==1)return false;
+        int target=sum/2;
+        vector<int>dp(10001,0);
+        for(int i=0;i<nums.size();i++){
+            for(int j=target;j>=nums[i];j--){
+                dp[j]=max(dp[j],nums[i]+dp[j-nums[i]]);
+            }
+        }
+        if(dp[target]==target) return true;
+        return false;
+    }
+};
+//509.斐波那契数
+class Solution {
+public:
+    int fib(int n) {
+        if(n<=1)return n;
+        int dp[2];
+        dp[0]=0;dp[1]=1;
+        for(int i=2;i<=n;i++){
+            int sum=dp[0]+dp[1];
+            dp[0]=dp[1];
+            dp[1]=sum;
+        }
+return dp[1];
+    }
+};
+//516.最长回文子序列
+class Solution {
+public:
+    int longestPalindromeSubseq(string s) {
+        // int n=s.size();
+        // vector<vector<int>>dp(n,vector<int>(n,0));
+        // for(int k=0;k<n;k++){
+        //     dp[k][k]=1;
+        // }
+        // //仅使用上三角数组，i<j
+        // for(int i=n-1;i>=0;i--){
+        //     for(int j=i+1;j<n;j++){
+        //         if(s[i]==s[j]){
+        //             dp[i][j]=dp[i+1][j-1]+2;
+        //         }
+        //         else{
+        //             dp[i][j]=max(dp[i+1][j],dp[i][j-1]);
+        //         }
+        //     }
+        // }
+        // return dp[0][n-1];
+    //压缩为一维数组
+          int n=s.size();
+        vector<int>dp(n,1);
+        for(int i=n-1;i>=0;i--){
+            int pre=0;
+            for(int j=i+1;j<n;j++){
+                int tmp=dp[j];
+                if(s[i]==s[j]){
+                    dp[j]=pre+2;
+                }
+                else{
+                    dp[j]=max(dp[j],dp[j-1]);
+                }
+                pre=tmp;
+            }
+        }
+        return dp[n-1];
     }
 };
 //950.按递增顺序显示卡牌
@@ -2248,6 +2727,56 @@ public:
         return ret;
     }
 };
+//971.翻转二叉树以匹配先序遍历
+class Solution {
+public: 
+    vector<int>ans;
+    int index=0;
+    bool dfs(TreeNode *root,vector<int>& voyage){
+       if(root==nullptr)return true;
+       int v=root->val;
+       if(v!=voyage[index])return false; 
+       index++;
+       bool left=dfs(root->left,voyage);
+       bool right=false;
+       if(left){
+           right=dfs(root->right,voyage);
+       }
+       if(!left||!right){
+           left=dfs(root->right,voyage);
+           right=dfs(root->left,voyage);
+           if(!left||!right){
+               return false;
+           }
+           ans.push_back(root->val);
+       }
+       return true;
+    }
+    vector<int> flipMatchVoyage(TreeNode* root, vector<int>& voyage) {
+       if(dfs(root,voyage))return ans;
+       else return {-1};
+    }
+};
+//1143.最长公共子序列
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int m=text1.size();int n=text2.size();
+        vector<vector<int>>dp(m+1,vector<int>(n+1,0));
+        //dp[i][j]是text1[0~i] text2[0~j]的最长公共子序列长度
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(text1[i-1]==text2[j-1]){
+                    dp[i][j]=dp[i-1][j-1]+1;//字符相等就+1
+                }else{
+                    dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+                    //不相等的话就看末位字符是否与另一字符串的其他位相等，找大的那一个dp值
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
 //1827.最少操作使数组递增
 class Solution {
 public:
@@ -2280,4 +2809,20 @@ public:
          }  
         return ans;
      }
+};
+//1946.子字符串突变后可能得到的最大整数
+class Solution {
+public:
+    string maximumNumber(string num, vector<int>& change) {
+        for(int i=0;i<num.size();i++){
+            if(change[num[i]-'0']>num[i]-'0'){
+                while(i<num.size()&&change[num[i]-'0']>=num[i]-'0'){
+                    num[i]=change[num[i]-'0']+'0';
+                    i++;
+                }
+                break;
+            }
+        }
+        return num;
+    }
 };
