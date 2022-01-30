@@ -1907,26 +1907,73 @@ public:
     }
 };
 //121.买卖股票的最佳时机
+// class Solution {
+// public:
+//     int maxProfit(vector<int>& prices) {
+//         vector<int>right_max(prices.size());
+//         vector<int> ans(prices.size());
+//         right_max[prices.size()-1]=prices[prices.size()-1];
+//         for(int i=prices.size()-2;i>=0;i--){
+//             right_max[i]=max(right_max[i+1],prices[i]);
+//         }
+//         for(int i=0;i<prices.size();i++){
+//             ans[i]=right_max[i]-prices[i];
+//         }
+//         int a=*max_element(ans.begin(),ans.end());
+//         if(a>=0){
+//             return a;
+//         }
+//         else{
+//             return 0;
+//         }
+       
+//     }
+// };
+class Solution{
+public:
+    int maxProfit(vector<int>&prices){
+        int n=prices.size();
+        int dp_i_0=0;
+        int dp_i_1=INT_MIN;
+        for(int i=0;i<n;i++){
+            dp_i_0=max(dp_i_0,dp_i_1+prices[i]);
+            dp_i_1=max(dp_i_1,-prices[i]);
+        }
+        return dp_i_0;
+    }
+};
+//122.买卖股票的最佳时机Ⅱ
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
-        vector<int>right_max(prices.size());
-        vector<int> ans(prices.size());
-        right_max[prices.size()-1]=prices[prices.size()-1];
-        for(int i=prices.size()-2;i>=0;i--){
-            right_max[i]=max(right_max[i+1],prices[i]);
+        int n=prices.size();
+        int dp_i_0=0;
+        int dp_i_1=INT_MIN;
+        for(int i=0;i<n;i++){
+            int tmp=dp_i_0;
+            dp_i_0=max(dp_i_0,dp_i_1+prices[i]);
+            dp_i_1=max(dp_i_1,tmp-prices[i]);
         }
-        for(int i=0;i<prices.size();i++){
-            ans[i]=right_max[i]-prices[i];
+        return dp_i_0;
+    }
+};
+//123.买卖股票的最佳时机Ⅲ
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+       vector<vector<int>>dp(n,vector<int>(5,0));
+       //前一个下标为第几天
+       //0-4指 0：无操作 1：第一次买 2：第一次卖 3：第二次买 4：第二次卖
+       dp[0][1]=dp[0][3]=-prices[0];
+        for(int i=1;i<n;i++){
+           dp[i][0]=dp[i-1][0];
+           dp[i][1]=max(dp[i-1][0]-prices[i],dp[i-1][1]);
+           dp[i][2]=max(dp[i-1][1]+prices[i],dp[i-1][2]);
+           dp[i][3]=max(dp[i-1][2]-prices[i],dp[i-1][3]);
+           dp[i][4]=max(dp[i-1][3]+prices[i],dp[i-1][4]);
         }
-        int a=*max_element(ans.begin(),ans.end());
-        if(a>=0){
-            return a;
-        }
-        else{
-            return 0;
-        }
-       
+        return dp[n-1][4];
     }
 };
 //125.验证回文串
@@ -2346,6 +2393,26 @@ public:
         return ans;
     }
 };
+//188.买卖股票的最佳时机Ⅳ
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        if(prices.size()==0)return 0;
+        vector<vector<int>>dp(prices.size(),vector<int>(2*k+1,0));
+        //除0以外
+        //奇数买入 偶数卖出
+        for(int i=1;i<2*k;i+=2){
+            dp[0][i]=-prices[0];
+        }
+        for(int i=1;i<prices.size();i++){
+            for(int j=0;j<2*k-1;j+=2){
+                dp[i][j+1]=max(dp[i-1][j]-prices[i],dp[i-1][j+1]);
+                dp[i][j+2]=max(dp[i-1][j+1]+prices[i],dp[i-1][j+2]);
+            }
+        }
+        return dp[prices.size()-1][2*k];
+    }
+};
 //190.颠倒二进制位
 class Solution {
 public:
@@ -2566,6 +2633,28 @@ public:
      return ans;
     }
 };
+//309.最佳买卖股票时机含冷冻期
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+      /*状态0：持有股票-要么昨天已经持有股票未操作，要么今天购入股票
+        状态1：早已卖出股票-已经卖出股票且不在冷冻期，一直没操作
+        状态2：今天卖出股票-也就是说昨天一定是持有股票的状态
+        状态3：冷冻期-昨天卖出了股票*/
+        int n=prices.size();
+        if(n==0)return 0;
+        vector<vector<int>>dp(prices.size(),vector<int>(4,0));
+        dp[0][0]=-prices[0];
+        for(int i=1;i<prices.size();i++){
+            dp[i][0]=max(dp[i-1][0],max(dp[i-1][1],dp[i-1][3])-prices[i]);
+                        /*前一天持有股票*//*今天买入是两个状态，1。昨天非冷冻期-状态1，2.昨天是冷冻期-状态3*/
+            dp[i][1]=max(dp[i-1][1],dp[i-1][3]);//要么昨天就是这状态，要么昨天刚冷冻期结束
+            dp[i][2]=dp[i-1][0]+prices[i];
+            dp[i][3]=dp[i-1][2];//冷冻期的前一天一定是卖了股票的
+        }
+        return max(dp[n-1][1],max(dp[n-1][2],dp[n-1][3]));
+    }
+};
 //322.零钱兑换
 class Solution {
 public:
@@ -2580,6 +2669,36 @@ public:
 
         }
         return dp[amount]==amount+1?-1:dp[amount];//判断是否有解
+    }
+};
+//337.打家劫舍Ⅲ
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int rob(TreeNode* root) {
+        vector<int> result = robTree(root);
+        return max(result[0], result[1]);
+    }
+    // 长度为2的数组，0：不偷，1：偷
+    vector<int> robTree(TreeNode* cur) {
+        if (cur == NULL) return vector<int>{0, 0};
+        vector<int> left = robTree(cur->left);
+        vector<int> right = robTree(cur->right);
+        // 偷cur
+        int val1 = cur->val + left[0] + right[0];
+        // 不偷cur
+        int val2 = max(left[0], left[1]) + max(right[0], right[1]);
+        return {val2, val1};
     }
 };
 //343.整数拆分
@@ -2692,6 +2811,48 @@ public:
             }
         }
         return dp[n-1];
+    }
+};
+//518.零钱兑换Ⅱ
+class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+        int m=coins.size();
+        int n=amount;
+        //dp含义：用前i个金币凑j的金额 一共有多少方法
+        vector<vector<int>>dp(m+1,vector<int>(n+1));
+        for(int i=0;i<=m;i++){
+            dp[i][0]=1;
+        }
+        for(int i=0;i<=n;i++){
+            dp[0][i]=0;
+        }
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(j-coins[i-1]>=0){
+                    dp[i][j]=dp[i-1][j]+dp[i][j-coins[i-1]];
+                }
+                else{
+                    dp[i][j]=dp[i-1][j];
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+//714.买卖股票的最佳时机含手续费
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        if(prices.size()==0)return 0;
+        vector<vector<int>>dp(prices.size(),vector<int>(2,0)); 
+        dp[0][0]=-prices[0];
+        for(int i=1;i<prices.size();i++){
+            //状态0持股，1不持股
+                dp[i][0]=max(dp[i-1][1]-prices[i],dp[i-1][0]);
+                dp[i][1]=max(dp[i-1][0]+prices[i]-fee,dp[i-1][1]);
+        }
+        return dp[prices.size()-1][1];
     }
 };
 //950.按递增顺序显示卡牌
